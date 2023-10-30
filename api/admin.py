@@ -5,11 +5,15 @@ from sqlalchemy.orm import Session
 from db_config.sqlalchemy_connect import SessionFactory
 from domain.request.signup import SignupReq
 from domain.data.sqlalchemy_models import Signup
-from repository.sqlalchemy.signup import SignupRepository, LoginMemberRepository, MemberAttendanceRepository
+from repository.sqlalchemy.signup import LoginMemberRepository, MemberAttendanceRepository
 from typing import List
 
+from cqrs.admin.command.create_handlers import AddSignupCommandHandler
+from cqrs.admin.command.update_handlers import UpdateSignupCommandHandler
+from cqrs.admin.command.delete_handlers import DeleteSignupCommandHandler
 from cqrs.admin.query.query_handlers import SignupQueryHandler, GetSignupQuery
 from cqrs.queries import SignupListQuery
+from cqrs.commands import SignupCommand
 
 
 router = APIRouter()
@@ -25,11 +29,14 @@ def sess_db():
 
 @router.post("/signup/add")
 def add_signup(req: SignupReq, sess: Session = Depends(sess_db)):
-    repo: SignupRepository = SignupRepository(sess)
+    handler = AddSignupCommandHandler(sess)
     signup = Signup(password=req.password, username=req.username, id=req.id)
-    result = repo.insert_signup(signup)
+    command = SignupCommand()
+    command.details = signup
+    result = handler.handle(command)
+
     if result == True:
-        return signup
+        return req
     else:
         return JSONResponse(content={'message': 'create signup problem encountered'}, status_code=500)
 
@@ -44,8 +51,10 @@ def list_signup(sess: Session = Depends(sess_db)):
 @router.patch("/signup/update")
 def update_signup(id: int, req: SignupReq, sess: Session = Depends(sess_db)):
     signup_dict = req.dict(exclude_unset=True)
-    repo: SignupRepository = SignupRepository(sess)
-    result = repo.update_signup(id, signup_dict)
+    handler = UpdateSignupCommandHandler(sess)
+    command = SignupCommand()
+    command.details = signup_dict
+    result = handler.handle(id, command)
     if result:
         return JSONResponse(content={'message': 'profile updated successfully'}, status_code=201)
     else:
@@ -54,8 +63,9 @@ def update_signup(id: int, req: SignupReq, sess: Session = Depends(sess_db)):
 
 @router.delete("/signup/delete/{id}")
 def delete_signup(id: int, sess: Session = Depends(sess_db)):
-    repo: SignupRepository = SignupRepository(sess)
-    result = repo.delete_signup(id)
+    handler = DeleteSignupCommandHandler(sess)
+    result = handler.handle(id)
+    
     if result:
         return JSONResponse(content={'message': 'profile deleted successfully'}, status_code=201)
     else:

@@ -8,6 +8,10 @@ from domain.data.sqlalchemy_models import Login
 from repository.sqlalchemy.login import LoginRepository
 from typing import List
 
+from cqrs.login.command.create_handlers import AddLoginCommandHandler
+from cqrs.login.command.update_handlers import UpdateLoginCommandHandler
+from cqrs.login.command.delete_handlers import DeleteLoginCommandHandler
+from cqrs.commands import LoginCommand
 from cqrs.login.query.query_handlers import ListLoginQueryHandler, GetLoginQueryHandler
 from cqrs.queries import LoginListQuery
 
@@ -25,10 +29,13 @@ def sess_db():
 
 @router.post("/login/add")
 async def add_login(req: LoginReq, sess: Session = Depends(sess_db)):
-    repo: LoginRepository = LoginRepository(sess)
-    login = Login(id=req.id, username=req.username, password=req.password, date_approved=req.date_approved,
-                  user_type=req.user_type)
-    result = repo.insert_login(login)
+    handler = AddLoginCommandHandler(sess)
+    login = Login(id=req.id, username=req.username, password=req.password, date_approved=req.date_approved, user_type=req.user_type)
+
+    command = LoginCommand()
+    command.details = login
+    result = handler.handle(command)
+    
     if result == True:
         return login
     else:
@@ -38,8 +45,10 @@ async def add_login(req: LoginReq, sess: Session = Depends(sess_db)):
 @router.patch("/login/update")
 async def update_login(id: int, req: LoginReq, sess: Session = Depends(sess_db)):
     login_dict = req.dict(exclude_unset=True)
-    repo: LoginRepository = LoginRepository(sess)
-    result = repo.update_login(id, login_dict)
+    handler = UpdateLoginCommandHandler(sess)
+    command = LoginCommand()
+    command.details = login_dict
+    result = handler.handle(id, command)
     if result:
         return JSONResponse(content={'message': 'login updated successfully'}, status_code=201)
     else:
@@ -48,8 +57,8 @@ async def update_login(id: int, req: LoginReq, sess: Session = Depends(sess_db))
 
 @router.delete("/login/delete/{id}")
 async def delete_login(id: int, sess: Session = Depends(sess_db)):
-    repo: LoginRepository = LoginRepository(sess)
-    result = repo.delete_login(id)
+    handler = DeleteLoginCommandHandler(sess)
+    result = handler.handle(id)
     if result:
         return JSONResponse(content={'message': 'login deleted successfully'}, status_code=201)
     else:

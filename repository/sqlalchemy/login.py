@@ -20,7 +20,12 @@ class LoginRepository:
     
     def update_login(self, id:int, details:Dict[str, Any]) -> bool: 
        try:
-            self.sess.query(Login).filter(Login.id == id).update(details)     
+            login = {
+                "id": details["id"],
+                "username": details["username"],
+                "password": details["password"]
+            }
+            self.sess.query(Login).filter(Login.id == id).update(login)
             self.sess.commit() 
            
        except: 

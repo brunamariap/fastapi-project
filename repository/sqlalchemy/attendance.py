@@ -12,7 +12,6 @@ class AttendanceRepository:
         try:
             self.sess.add(member)
             self.sess.commit()
-            print(member.id)
         except:
             return False
         return True

@@ -13,7 +13,6 @@ class SignupRepository:
         try:
             self.sess.add(signup)
             self.sess.commit()
-            print(signup.id)
         except:
             return False
         return True
@@ -22,7 +21,6 @@ class SignupRepository:
         try:
             self.sess.query(Signup).filter(Signup.id == id).update(details)
             self.sess.commit()
-
         except:
             return False
         return True
