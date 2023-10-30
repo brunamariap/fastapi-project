@@ -7,6 +7,8 @@ from domain.request.trainers import ProfileTrainersReq
 from domain.data.sqlalchemy_models import Profile_Trainers
 
 from cqrs.trainers.command.create_handlers import AddTrainerCommandHandler
+from cqrs.trainers.command.update_handlers import UpdateTrainerCommandHandler
+from cqrs.trainers.command.delete_handlers import DeleteTrainerCommandHandler
 from cqrs.commands import ProfileTrainerCommand
 from cqrs.trainers.query.query_handlers import ListTrainerQueryHandler, ProfileTrainerListQuery, GetTrainerQueryHandler
 
@@ -43,12 +45,26 @@ def list_trainers(sess: Session = Depends(sess_db)):
 
 @router.patch("/trainers/update")
 def update_trainer(id: int, req: ProfileTrainersReq, sess: Session = Depends(sess_db)):
-    pass
+    trainer_dict = req.dict(exclude_unset=True)
+    handler = UpdateTrainerCommandHandler(sess)
+    command = ProfileTrainerCommand()
+    command.details = trainer_dict
+    result = handler.handle(id, command)
+
+    if result:
+        return JSONResponse(content={'message': 'trainer updated successfully'}, status_code=201)
+    else:
+        return JSONResponse(content={'message': 'update trainer error'}, status_code=500)
 
 
 @router.delete("/trainers/delete/{id}")
 def delete_trainer(id: int, sess: Session = Depends(sess_db)):
-    pass
+    handler = DeleteTrainerCommandHandler(sess)
+    result = handler.handle(id)
+    if result:
+        return JSONResponse(content={'message': 'trainer deleted successfully'}, status_code=200)
+    else:
+        return JSONResponse(content={'message': 'delete trainer error'}, status_code=500)
 
 
 @router.get("/trainers/list/{id}", response_model=ProfileTrainersReq)
