@@ -6,13 +6,11 @@ from sqlalchemy import desc
 
 class TrainerRepository:
     
-    def __init__(self, sess: Session):
+    def __init__(self, sess):
         self.sess: Session = sess
 
     def insert_trainer(self, trainer: Profile_Trainers) -> bool:
         try:
-            # print(trainer)
-            print(trainer.id)
             self.sess.add(trainer)
             self.sess.commit()
         except:

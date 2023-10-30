@@ -8,6 +8,10 @@ from domain.data.sqlalchemy_models import Signup
 from repository.sqlalchemy.signup import SignupRepository, LoginMemberRepository, MemberAttendanceRepository
 from typing import List
 
+from cqrs.admin.query.query_handlers import SignupQueryHandler, GetSignupQuery
+from cqrs.queries import SignupListQuery
+
+
 router = APIRouter()
 
 
@@ -32,9 +36,9 @@ def add_signup(req: SignupReq, sess: Session = Depends(sess_db)):
 
 @router.get("/signup/list", response_model=List[SignupReq])
 def list_signup(sess: Session = Depends(sess_db)):
-    repo: SignupRepository = SignupRepository(sess)
-    result = repo.get_all_signup()
-    return result
+    handler = SignupQueryHandler(sess)
+    query: SignupListQuery = handler.handle()
+    return query.records
 
 
 @router.patch("/signup/update")
@@ -60,9 +64,9 @@ def delete_signup(id: int, sess: Session = Depends(sess_db)):
 
 @router.get("/signup/list/{id}", response_model=SignupReq)
 def get_signup(id: int, sess: Session = Depends(sess_db)):
-    repo: SignupRepository = SignupRepository(sess)
-    result = repo.get_signup(id)
-    return result
+    handler = GetSignupQuery(sess, id)
+    query: SignupListQuery = handler.handle()
+    return query.records
 
 
 @router.get("/login/memberslist")

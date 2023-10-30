@@ -8,6 +8,10 @@ from domain.data.sqlalchemy_models import Login
 from repository.sqlalchemy.login import LoginRepository
 from typing import List
 
+from cqrs.login.query.query_handlers import ListLoginQueryHandler, GetLoginQueryHandler
+from cqrs.queries import LoginListQuery
+
+
 router = APIRouter()
 
 
@@ -54,13 +58,13 @@ async def delete_login(id: int, sess: Session = Depends(sess_db)):
 
 @router.get("/login/list")
 async def list_login(sess: Session = Depends(sess_db)):
-    repo: LoginRepository = LoginRepository(sess)
-    result = repo.get_all_login()
-    return result
+    handler = ListLoginQueryHandler(sess)
+    query: LoginListQuery = handler.handle()
+    return query.records
 
 
 @router.get("/login/get/{id}")
 async def get_login(id: int, sess: Session = Depends(sess_db)):
-    repo: LoginRepository = LoginRepository(sess)
-    result = repo.get_login(id)
-    return result
+    handler = GetLoginQueryHandler(sess, id)
+    query: LoginListQuery = handler.handle()
+    return query.records

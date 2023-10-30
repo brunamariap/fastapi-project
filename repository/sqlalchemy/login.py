@@ -20,8 +20,8 @@ class LoginRepository:
     
     def update_login(self, id:int, details:Dict[str, Any]) -> bool: 
        try:
-             self.sess.query(Login).filter(Login.id == id).update(details)     
-             self.sess.commit() 
+            self.sess.query(Login).filter(Login.id == id).update(details)     
+            self.sess.commit() 
            
        except: 
            return False 
@@ -29,8 +29,8 @@ class LoginRepository:
    
     def delete_login(self, id:int) -> bool: 
         try:
-           signup = self.sess.query(Login).filter(Login.id == id).delete()
-           self.sess.commit()
+            signup = self.sess.query(Login).filter(Login.id == id).delete()
+            self.sess.commit()
           
         except: 
             return False 
