@@ -5,7 +5,7 @@ from domain.data.sqlalchemy_models import Profile_Members, Gym_Class
 
 
 class GymClassRepository:
-    def __inti__(self, sess: Session):
+    def __init__(self, sess: Session):
         self.sess : Session = sess
 
     def insert_gym_class(self, member):
@@ -43,7 +43,7 @@ class GymClassRepository:
 
 
 class MembersRepository:
-    def __inti__(self, sess: Session):
+    def __init__(self, sess: Session):
         self.sess : Session = sess
 
     def insert_member(self, member):

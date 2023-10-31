@@ -10,7 +10,7 @@ class ListAttendanceQueryHandler(IQueryHandler):
         self.repo: AttendanceRepository = AttendanceRepository(sess)
         self.query: AttendanceListQuery = AttendanceListQuery()
     def handle(self) -> AttendanceListQuery:
-        data = self.repo.get_all_trainers()
+        data = self.repo.get_all_members()
         self.query.records = data
         return self.query
     
@@ -21,6 +21,6 @@ class GetAttendanceQueryHandler(IQueryHandler):
         self.query: AttendanceListQuery = AttendanceListQuery()
         self.id = id
     def handle(self) -> AttendanceListQuery:
-        data = self.repo.get_trainer(self.id)
+        data = self.repo.get_member(self.id)
         self.query.records = data
         return self.query

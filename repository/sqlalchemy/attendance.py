@@ -5,7 +5,7 @@ from domain.data.sqlalchemy_models import Attendance_Member
 
 
 class AttendanceRepository:
-    def __inti__(self, sess: Session):
+    def __init__(self, sess: Session):
         self.sess : Session = sess
 
     def insert_member(self, member):
@@ -37,5 +37,5 @@ class AttendanceRepository:
     def get_all_members(self):
         return self.sess.query(Attendance_Member).all()
     
-    def get_member(self):
+    def get_member(self, id: int):
         return self.sess.query(Attendance_Member).filter(Attendance_Member.id == id).one_or_none()
