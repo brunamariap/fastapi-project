@@ -1,5 +1,5 @@
 from typing import List
-from domain.data.sqlalchemy_models import Profile_Trainers, Login, Signup, Profile_Members
+from domain.data.sqlalchemy_models import Profile_Trainers, Login, Signup, Profile_Members, Attendance_Member, Gym_Class
 
 
 class SignupListQuery:
@@ -44,6 +44,32 @@ class ProfileTrainerListQuery:
 class ProfileMemberListQuery:
     def __init__(self):
         self._records: List[Profile_Members] = list()
+
+    @property
+    def records(self):
+        return self._records
+    
+    @records.setter
+    def records(self, records):
+        self._records = records
+
+
+class AttendanceListQuery:
+    def __init__(self):
+        self._records: List[Attendance_Member] = list()
+
+    @property
+    def records(self):
+        return self._records
+    
+    @records.setter
+    def records(self, records):
+        self._records = records
+
+
+class GymClassListQuery:
+    def __init__(self):
+        self._records: List[Gym_Class] = list()
 
     @property
     def records(self):
